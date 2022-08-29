@@ -1,0 +1,26 @@
+`kubectl -nkube-system edit cm aws-auth`
+```
+    - "groups":
+      - "system:masters"
+      "rolearn": "arn:aws:iam::ID_AWS_ACCOUNT:role/GoogleOpenIDConnectAdmin"
+      "username": "google-open-id-connect-admin"
+    - "groups":
+      "rolearn": "arn:aws:iam::ID_AWS_ACCOUNT:role/GoogleOpenIDConnectDeveloper"
+      "username": "google-open-id-connect-developer"
+    - "groups":
+      "rolearn": "arn:aws:iam::ID_AWS_ACCOUNT:role/GoogleOpenIDConnectSqlproxy"
+      "username": "google-open-id-connect-sqlproxy"
+```
+
+or with terraform 
+```
+locals {
+[..]
+  eks_roles_mapping = [ {"groups": ["system:masters"], "username": "google-open-id-connect-admin", "rolearn": "arn:aws:iam::ID_AWS_ACCOUNT:role/GoogleOpenIDConnectAdmin"}, {"groups": ["system:masters"], "username": "google-open-id-connect-developer", "rolearn": "arn:aws:iam::ID_AWS_ACCOUNT:role/GoogleOpenIDConnectDeveloper"}, {"groups": ["system:masters"], "username": "google-open-id-connect-sqlproxy", "rolearn": "arn:aws:iam::ID_AWS_ACCOUNT:role/GoogleOpenIDConnectSqlproxy"} ]
+}
+
+module "infrastructure-terraform-eks" {
+[..]
+  map_roles = local.eks_roles_mapping
+
+```

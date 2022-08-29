@@ -1,0 +1,70 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  labels:
+  name: cr-get-list-watch-all
+  namespace: default
+rules:
+- apiGroups: [""]
+  resources: ["*"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["batch", "extensions", "apps"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crb-get-list-watch-all
+subjects:
+- kind: User
+  name: google-open-id-connect-developer
+roleRef:
+  kind: ClusterRole
+  name: cr-get-list-watch-all
+  apiGroup: ""
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crb-sqlproxy
+subjects:
+- kind: User
+  name: google-open-id-connect-sqlproxy
+roleRef:
+  kind: ClusterRole
+  name: cr-sqlproxy
+  apiGroup: ""
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: sql-forwarding
+  labels:
+    name: sql-forwarding
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: r-sql-forwarding
+  namespace: sql-forwarding
+rules:
+- apiGroups: [""] 
+  resources: ["pods/portforward","pods","pods/exec","namespaces"]
+  verbs: ["get","create","delete","patch","list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rb-sql-forwarding
+  namespace: sql-forwarding
+subjects:
+- kind: User
+  name: google-open-id-connect-sqlproxy
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: r-sql-forwarding
+  apiGroup: rbac.authorization.k8s.io
